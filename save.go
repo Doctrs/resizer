@@ -7,8 +7,6 @@ import (
 	"image/draw"
 	"image/color"
 	"image/png"
-	"image/gif"
-	"bufio"
 )
 
 func (r *Resizer) ConvertImage(img image.Image) (newImage image.Image){
@@ -45,17 +43,4 @@ func (r *Resizer) SavePng(img image.Image, filePath string) (err error){
 	}
 
 	return png.Encode(outputFile, img)
-}
-
-func (r *Resizer) SaveGif(img image.Image, filePath string) (err error){
-	if r.mimeType != GIF {
-		img = r.ConvertImage(img)
-	}
-
-	outputFile, err := os.Create(filePath)
-	if err != nil{
-		return err
-	}
-
-	return gif.Encode(outputFile, img, &gif.Options{256, nil, nil})
 }
