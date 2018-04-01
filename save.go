@@ -7,6 +7,8 @@ import (
 	"image/draw"
 	"image/color"
 	"image/png"
+	"errors"
+	"fmt"
 )
 
 func (r *Resizer) ConvertImage(img image.Image) (newImage image.Image){
@@ -16,6 +18,18 @@ func (r *Resizer) ConvertImage(img image.Image) (newImage image.Image){
 
 	return newImg
 }
+
+func (r *Resizer) Save(filePath string) (err error){
+	switch r.mimeType {
+	case JPEG:
+		return r.SaveJpeg(filePath)
+	case PNG:
+		return r.SavePng(filePath)
+	default:
+		return errors.New(fmt.Sprintf("Mime type %s not supported", r.mimeType))
+	}
+}
+
 
 func (r *Resizer) SaveJpeg(filePath string) (err error){
 	if r.mimeType != JPEG {
