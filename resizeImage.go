@@ -96,6 +96,12 @@ func (r *Resizer) Resize(img image.Image, width uint, height uint) image.Image {
 func (r *Resizer) Cover(img image.Image, width uint, height uint) (newWidth uint, newHeight uint){
 	koefOld := float32(img.Bounds().Max.X) / float32(img.Bounds().Max.Y)
 	koefNew := float32(width) / float32(height)
+	switch true {
+	case width == 0:
+		return uint(float32(height) * koefOld), height
+	case height == 0:
+		return width, uint(float32(width) / koefOld)
+	}
 
 	switch true {
 	case koefNew > koefOld:

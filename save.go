@@ -10,7 +10,7 @@ import (
 )
 
 func (r *Resizer) ConvertImage(img image.Image) (newImage image.Image){
-	newImg := image.NewRGBA64(img.Bounds())
+	newImg := image.NewRGBA(img.Bounds())
 	draw.Draw(newImg, newImg.Bounds(), &image.Uniform{color.White}, image.Point{}, draw.Src)
 	draw.FloydSteinberg.Draw(newImg, newImg.Bounds(), img, img.Bounds().Min)
 
