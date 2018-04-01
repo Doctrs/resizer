@@ -17,9 +17,9 @@ func (r *Resizer) ConvertImage(img image.Image) (newImage image.Image){
 	return newImg
 }
 
-func (r *Resizer) SaveJpeg(img image.Image, filePath string) (err error){
+func (r *Resizer) SaveJpeg(filePath string) (err error){
 	if r.mimeType != JPEG {
-		img = r.ConvertImage(img)
+		r.newImg = r.ConvertImage(r.newImg)
 	}
 
 	outputFile, err := os.Create(filePath)
@@ -27,14 +27,14 @@ func (r *Resizer) SaveJpeg(img image.Image, filePath string) (err error){
 		return err
 	}
 
-	jpeg.Encode(outputFile, img, &jpeg.Options{95})
+	jpeg.Encode(outputFile, r.newImg, &jpeg.Options{95})
 
 	return nil
 }
 
-func (r *Resizer) SavePng(img image.Image, filePath string) (err error){
+func (r *Resizer) SavePng(filePath string) (err error){
 	if r.mimeType != PNG {
-		img = r.ConvertImage(img)
+		r.newImg = r.ConvertImage(r.newImg)
 	}
 
 	outputFile, err := os.Create(filePath)
@@ -42,5 +42,5 @@ func (r *Resizer) SavePng(img image.Image, filePath string) (err error){
 		return err
 	}
 
-	return png.Encode(outputFile, img)
+	return png.Encode(outputFile, r.newImg)
 }

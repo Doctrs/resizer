@@ -6,10 +6,10 @@ import (
 	"image/color"
 )
 
-func NearestNeighbor(img image.Image, width uint, height uint) (image.Image) {
+func (r *Resizer) NearestNeighbor(width uint, height uint) (image.Image) {
 
-	pixelsX := float32(img.Bounds().Max.X) / float32(width)
-	pixelsY := float32(img.Bounds().Max.Y) / float32(height)
+	pixelsX := float32(r.img.Bounds().Max.X) / float32(width)
+	pixelsY := float32(r.img.Bounds().Max.Y) / float32(height)
 	newImage := image.NewRGBA(image.Rect(0, 0, int(width), int(height)))
 
 	for i := 0 ; i < int(width); i++ {
@@ -17,14 +17,14 @@ func NearestNeighbor(img image.Image, width uint, height uint) (image.Image) {
 			pixelWidth := float32(i) * pixelsX
 			pixelHeight := float32(k) * pixelsY
 
-			if pixelWidth > float32(img.Bounds().Max.X) {
-				pixelWidth = float32(img.Bounds().Max.X)
+			if pixelWidth > float32(r.img.Bounds().Max.X) {
+				pixelWidth = float32(r.img.Bounds().Max.X)
 			}
-			if pixelHeight > float32(img.Bounds().Max.Y) {
-				pixelHeight = float32(img.Bounds().Max.Y)
+			if pixelHeight > float32(r.img.Bounds().Max.Y) {
+				pixelHeight = float32(r.img.Bounds().Max.Y)
 			}
 
-			red, green, blue, alpha := img.At(int(pixelWidth), int(pixelHeight)).RGBA()
+			red, green, blue, alpha := r.img.At(int(pixelWidth), int(pixelHeight)).RGBA()
 
 			newImage.Set(i, k, color.RGBA{uint8(red / 257), uint8(green / 257), uint8(blue / 257), uint8(alpha / 257)})
 		}
@@ -33,10 +33,10 @@ func NearestNeighbor(img image.Image, width uint, height uint) (image.Image) {
 	return newImage
 }
 
-func Supersample(img image.Image, width uint, height uint) (image.Image){
+func (resizer *Resizer) Supersample(width uint, height uint) (image.Image){
 
-	pixelsX := float32(img.Bounds().Max.X) / float32(width)
-	pixelsY := float32(img.Bounds().Max.Y) / float32(height)
+	pixelsX := float32(resizer.img.Bounds().Max.X) / float32(width)
+	pixelsY := float32(resizer.img.Bounds().Max.Y) / float32(height)
 	newImage := image.NewRGBA(image.Rect(0, 0, int(width), int(height)))
 
 	radiusX := float32(math.Ceil(float64(pixelsX))) / 2
@@ -61,11 +61,11 @@ func Supersample(img image.Image, width uint, height uint) (image.Image){
 			pixelWidth := float32(i) * pixelsX
 			pixelHeight := float32(k) * pixelsY
 
-			if pixelWidth > float32(img.Bounds().Max.X) {
-				pixelWidth = float32(img.Bounds().Max.X)
+			if pixelWidth > float32(resizer.img.Bounds().Max.X) {
+				pixelWidth = float32(resizer.img.Bounds().Max.X)
 			}
-			if pixelHeight > float32(img.Bounds().Max.Y) {
-				pixelHeight = float32(img.Bounds().Max.Y)
+			if pixelHeight > float32(resizer.img.Bounds().Max.Y) {
+				pixelHeight = float32(resizer.img.Bounds().Max.Y)
 			}
 
 
@@ -77,17 +77,17 @@ func Supersample(img image.Image, width uint, height uint) (image.Image){
 					if pw < 0 {
 						pw = 0
 					}
-					if pw > float32(img.Bounds().Max.X) {
-						pw = float32(img.Bounds().Max.X)
+					if pw > float32(resizer.img.Bounds().Max.X) {
+						pw = float32(resizer.img.Bounds().Max.X)
 					}
 					if ph < 0 {
 						ph = 0
 					}
-					if ph > float32(img.Bounds().Max.Y) {
-						ph = float32(img.Bounds().Max.Y)
+					if ph > float32(resizer.img.Bounds().Max.Y) {
+						ph = float32(resizer.img.Bounds().Max.Y)
 					}
 
-					ri, gi, bi, ai := img.At(int(pw), int(ph)).RGBA()
+					ri, gi, bi, ai := resizer.img.At(int(pw), int(ph)).RGBA()
 
 					r[count] = ri
 					g[count] = gi

@@ -30,13 +30,17 @@ type Resizer struct {
 	algorithm int
 	inscribe int
 	mimeType string
+	img image.Image
+	newImg image.Image
 }
 
 func GetResizer() (r Resizer){
 	return Resizer{
 		1,
 		1,
-		""}
+		"",
+		nil,
+		nil}
 }
 
 func (r *Resizer) SetAlgorithm(algorithm int) {
@@ -47,54 +51,57 @@ func (r *Resizer) SetInscribe(inscribe int) {
 	r.inscribe = inscribe
 }
 
-func (r *Resizer) Load(filePath string) (img image.Image, err error){
+func (r *Resizer) Load(filePath string) (err error){
 
 	file, err := ioutil.ReadFile(filePath)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	osFile, err := os.Open(filePath)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	defer osFile.Close()
 
 	mimeType, err := r.GetFileContentType(osFile)
 	if err != nil{
-		return nil, err
+		return err
 	}
 	r.mimeType = mimeType
 
 	switch mimeType {
 	case JPEG:
-		return jpeg.Decode(bytes.NewReader(file))
+		r.img, err = jpeg.Decode(bytes.NewReader(file))
+		return err
 	case PNG:
-		return png.Decode(bytes.NewReader(file))
+		r.img, err = png.Decode(bytes.NewReader(file))
+		return err
 	case GIF:
-		return gif.Decode(bytes.NewReader(file))
+		r.img, err = gif.Decode(bytes.NewReader(file))
+		return err
 	default:
-		return nil, errors.New(fmt.Sprintf("Mime type %s not supported", mimeType))
+		return errors.New(fmt.Sprintf("Mime type %s not supported", mimeType))
 	}
 }
 
-func (r *Resizer) Resize(img image.Image, width uint, height uint) image.Image {
+func (r *Resizer) Resize(width uint, height uint) {
 
 	switch r.inscribe {
 	case COVER:
-		width, height = r.Cover(img, width, height)
+		width, height = r.Cover(width, height)
 	}
 
 	switch r.algorithm {
 	case NEAREST_NEIGHBOR:
-		return NearestNeighbor(img, width, height)
+		r.newImg = r.NearestNeighbor(width, height)
 	default:
-		return Supersample(img, width, height)
+		r.newImg = r.Supersample(width, height)
 	}
 }
 
-func (r *Resizer) Cover(img image.Image, width uint, height uint) (newWidth uint, newHeight uint){
-	koefOld := float32(img.Bounds().Max.X) / float32(img.Bounds().Max.Y)
+func (r *Resizer) Cover(width uint, height uint) (newWidth uint, newHeight uint){
+	koefOld := float32(r.img.Bounds().Max.X) / float32(r.img.Bounds().Max.Y)
 	koefNew := float32(width) / float32(height)
 	switch true {
 	case width == 0:
