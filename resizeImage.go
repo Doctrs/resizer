@@ -36,12 +36,7 @@ type Resizer struct {
 }
 
 func GetResizer() (r Resizer){
-	return Resizer{
-		1,
-		1,
-		"",
-		nil,
-		nil}
+	return Resizer{1, 1, "", nil, nil}
 }
 
 func (r *Resizer) SetAlgorithm(algorithm int) {
@@ -59,19 +54,12 @@ func (r *Resizer) Load(filePath string) (err error){
 		return err
 	}
 
-	osFile, err := os.Open(filePath)
-	if err != nil {
-		return err
-	}
-	defer osFile.Close()
-
-	mimeType, err := r.GetFileContentType(osFile)
+	err = r.GetFileContentType(filePath)
 	if err != nil{
 		return err
 	}
-	r.mimeType = mimeType
 
-	switch mimeType {
+	switch r.mimeType {
 	case JPEG:
 		r.img, err = jpeg.Decode(bytes.NewReader(file))
 		return err
@@ -82,7 +70,7 @@ func (r *Resizer) Load(filePath string) (err error){
 		r.img, err = gif.Decode(bytes.NewReader(file))
 		return err
 	default:
-		return errors.New(fmt.Sprintf("Mime type %s not supported", mimeType))
+		return errors.New(fmt.Sprintf("Mime type %s not supported", r.mimeType))
 	}
 }
 
@@ -103,16 +91,23 @@ func (r *Resizer) Resize(width uint, height uint) {
 	}
 }
 
-func (r *Resizer) GetFileContentType(out *os.File) (string, error) {
+func (r *Resizer) GetFileContentType(filePath string) (error) {
+
+	osFile, err := os.Open(filePath)
+	if err != nil {
+		return err
+	}
+	defer osFile.Close()
 
 	buffer := make([]byte, 512)
 
-	_, err := out.Read(buffer)
-	if err != nil {
-		return "", err
+	_, er := osFile.Read(buffer)
+	if er != nil {
+		return er
 	}
 
 	contentType := http.DetectContentType(buffer)
 
-	return contentType, nil
+	r.mimeType = contentType
+	return nil
 }

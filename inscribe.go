@@ -20,6 +20,7 @@ func (r *Resizer) Cover(width uint, height uint) (newWidth uint, newHeight uint)
 		return width, height
 	}
 }
+
 func (r *Resizer) Contain(width uint, height uint) (newWidth uint, newHeight uint){
 	koefOld := float32(r.img.Bounds().Max.X) / float32(r.img.Bounds().Max.Y)
 	koefNew := float32(width) / float32(height)
